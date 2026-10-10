@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0b1120; color: #f1f5f9;
+        font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; }
+      .clip { position: absolute; inset: 0; }
+      .scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 84px; }
+      .bg-grad { position: absolute; inset: 0; background:
+          radial-gradient(60% 70% at 18% 12%, rgba(37,99,235,0.30), transparent 60%),
+          radial-gradient(55% 65% at 85% 8%, rgba(124,58,237,0.28), transparent 60%),
+          radial-gradient(70% 80% at 50% 120%, rgba(37,99,235,0.16), transparent 60%), #0b1120; }
+      .grad-text { background: linear-gradient(120deg,#60a5fa,#a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .card { background: #111827; border: 1px solid #1e293b; border-radius: 24px; box-shadow: 0 40px 90px -40px rgba(0,0,0,0.8); }
+      .sec-title { font-size: 62px; font-weight: 850; letter-spacing: -0.02em; text-align: center; margin-bottom: 40px; }
+      .pill { display: inline-flex; align-items: center; gap: 14px; font-weight: 750; font-size: 30px; padding: 14px 30px; border-radius: 999px; }
+      .pill-wa { background: rgba(37,211,102,0.14); color: #4ade80; border: 1px solid rgba(37,211,102,0.35); }
+      .pill-brand { background: rgba(37,99,235,0.16); color: #93c5fd; border: 1px solid rgba(37,99,235,0.4); }
+
+      /* S1 */
+      h1.title { font-size: 104px; line-height: 1.05; letter-spacing: -0.03em; text-align: center; font-weight: 850; }
+      .price-tag { font-size: 120px; font-weight: 850; letter-spacing: -0.03em; }
+      .price-tag small { font-size: 40px; color: #94a3b8; font-weight: 700; }
+      .sub { font-size: 40px; color: #cbd5e1; text-align: center; }
+
+      /* Grid items */
+      .grid6 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; width: 1560px; }
+      .item { padding: 38px 34px; }
+      .item .ic { font-size: 56px; margin-bottom: 18px; }
+      .item h3 { font-size: 32px; margin-bottom: 8px; }
+      .item p { font-size: 24px; color: #94a3b8; line-height: 1.45; }
+
+      /* Detail list */
+      .dlist { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 54px; width: 1560px; }
+      .drow { display: flex; gap: 20px; align-items: flex-start; }
+      .drow .ck { flex: none; width: 44px; height: 44px; border-radius: 12px; background: rgba(37,99,235,0.18); color: #93c5fd; display: grid; place-items: center; font-size: 24px; font-weight: 900; }
+      .drow h4 { font-size: 30px; margin-bottom: 4px; }
+      .drow p { font-size: 23px; color: #94a3b8; line-height: 1.4; }
+
+      /* S4 phone + steps */
+      .wa-wrap { display: flex; gap: 80px; align-items: center; width: 1600px; }
+      .steps { flex: 1; display: flex; flex-direction: column; gap: 26px; }
+      .step { display: flex; gap: 22px; align-items: flex-start; }
+      .step .n { flex: none; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff; display: grid; place-items: center; font-size: 28px; font-weight: 850; }
+      .step h4 { font-size: 34px; margin-bottom: 4px; }
+      .step p { font-size: 25px; color: #94a3b8; line-height: 1.4; }
+      .phone { width: 520px; background: #0f1a2e; border: 1px solid #1e293b; border-radius: 44px; padding: 24px; box-shadow: 0 50px 100px -30px rgba(0,0,0,0.85); }
+      .screen { background: #0b141a; border-radius: 30px; padding: 24px; display: flex; flex-direction: column; gap: 16px; min-height: 760px; }
+      .screen .hd { text-align: center; color: #8fddb4; font-size: 22px; opacity: 0.85; }
+      .bub { max-width: 84%; padding: 18px 22px; border-radius: 20px; font-size: 27px; line-height: 1.35; white-space: pre-line; }
+      .me { align-self: flex-end; background: #075e54; color: #eafff5; border-bottom-right-radius: 6px; }
+      .bot { align-self: flex-start; background: #1f2c34; color: #e9edef; border-bottom-left-radius: 6px; }
+
+      /* S5 yes/no */
+      .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; width: 1500px; }
+      .col { padding: 40px 40px 44px; }
+      .col h3 { font-size: 38px; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+      .col.yes h3 { color: #4ade80; }
+      .col.no h3 { color: #fb7185; }
+      .col ul { list-style: none; display: grid; gap: 16px; }
+      .col li { font-size: 27px; color: #cbd5e1; display: flex; gap: 14px; align-items: flex-start; }
+      .col.yes li::before { content: "✓"; color: #4ade80; font-weight: 900; }
+      .col.no li::before { content: "×"; color: #fb7185; font-weight: 900; }
+
+      /* S6 steps row */
+      .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; width: 1620px; }
+      .fstep { padding: 34px 26px; text-align: center; }
+      .fstep .b { width: 68px; height: 68px; margin: 0 auto 18px; border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff; display: grid; place-items: center; font-size: 32px; font-weight: 850; }
+      .fstep h4 { font-size: 28px; margin-bottom: 8px; }
+      .fstep p { font-size: 22px; color: #94a3b8; line-height: 1.4; }
+
+      .cta-btn { display: inline-flex; align-items: center; gap: 16px; background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff; font-size: 40px; font-weight: 800; padding: 26px 58px; border-radius: 999px; box-shadow: 0 30px 70px -24px rgba(37,99,235,0.75); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="77" data-width="1920" data-height="1080">
+      <div class="bg-grad"></div>
+
+      <!-- S1: INTRO -->
+      <div class="clip scene" data-start="0" data-duration="7.2" data-track-index="1">
+        <div id="d1pill" class="pill pill-wa" style="opacity:0">🟢 Plan Online + WhatsApp</div>
+        <h1 id="d1title" class="title" style="opacity:0; margin-top:34px">Tu inventario en la nube,<br /><span class="grad-text">controlado por WhatsApp</span></h1>
+        <div id="d1price" class="price-tag grad-text" style="opacity:0; margin-top:30px">$45<small> / mes · todo incluido</small></div>
+      </div>
+
+      <!-- S2: QUÉ INCLUYE -->
+      <div class="clip scene" data-start="7.2" data-duration="11.8" data-track-index="1">
+        <div id="d2title" class="sec-title" style="opacity:0">¿Qué incluye tu plan?</div>
+        <div class="grid6">
+          <div class="card item d2i" style="opacity:0"><div class="ic">📦</div><h3>Sistema de inventario</h3><p>Control completo de productos y existencias.</p></div>
+          <div class="card item d2i" style="opacity:0"><div class="ic">🟢</div><h3>Bot de WhatsApp</h3><p>Consulta y registra movimientos por chat.</p></div>
+          <div class="card item d2i" style="opacity:0"><div class="ic">☁️</div><h3>Alojamiento + dominio</h3><p>En la nube, accesible desde cualquier lugar.</p></div>
+          <div class="card item d2i" style="opacity:0"><div class="ic">💾</div><h3>Respaldos diarios</h3><p>Tus datos seguros y recuperables.</p></div>
+          <div class="card item d2i" style="opacity:0"><div class="ic">🔄</div><h3>Actualizaciones</h3><p>Mejoras continuas sin costo extra.</p></div>
+          <div class="card item d2i" style="opacity:0"><div class="ic">⭐</div><h3>Soporte prioritario</h3><p>Te ayudamos cuando lo necesites.</p></div>
+        </div>
+      </div>
+
+      <!-- S3: SISTEMA DE INVENTARIO EN DETALLE -->
+      <div class="clip scene" data-start="19.0" data-duration="14.0" data-track-index="1">
+        <div id="d3title" class="sec-title" style="opacity:0">El sistema de inventario, <span class="grad-text">en detalle</span></div>
+        <div class="dlist">
+          <div class="drow d3r" style="opacity:0"><div class="ck">📋</div><div><h4>Productos organizados</h4><p>Nombre, código, categoría, precio y unidad de medida.</p></div></div>
+          <div class="drow d3r" style="opacity:0"><div class="ck">📊</div><div><h4>Stock en tiempo real</h4><p>Existencias siempre actualizadas por producto.</p></div></div>
+          <div class="drow d3r" style="opacity:0"><div class="ck">🔔</div><div><h4>Mínimos y alertas</h4><p>Define el stock mínimo y recibe avisos automáticos.</p></div></div>
+          <div class="drow d3r" style="opacity:0"><div class="ck">↕️</div><div><h4>Entradas y salidas</h4><p>Cada movimiento con historial: qué, cuánto, quién y cuándo.</p></div></div>
+          <div class="drow d3r" style="opacity:0"><div class="ck">🧾</div><div><h4>Reportes y exportación</h4><p>Valor de inventario y rotación en Excel y PDF.</p></div></div>
+          <div class="drow d3r" style="opacity:0"><div class="ck">👥</div><div><h4>Multiusuario con roles</h4><p>Administrador, almacén o solo consulta.</p></div></div>
+        </div>
+      </div>
+
+      <!-- S4: WHATSAPP PASO A PASO -->
+      <div class="clip scene" data-start="33.0" data-duration="20.0" data-track-index="1">
+        <div id="d4title" class="sec-title" style="opacity:0">Control por WhatsApp, <span class="grad-text">paso a paso</span></div>
+        <div class="wa-wrap">
+          <div class="steps">
+            <div class="step d4s" style="opacity:0"><div class="n">1</div><div><h4>Consulta el stock</h4><p>Escribe «stock» y el producto. Te responde al instante.</p></div></div>
+            <div class="step d4s" style="opacity:0"><div class="n">2</div><div><h4>Registra una entrada</h4><p>«entrada 50 café» suma al inventario.</p></div></div>
+            <div class="step d4s" style="opacity:0"><div class="n">3</div><div><h4>Registra una salida</h4><p>«salida 12 coca cola» descuenta al momento.</p></div></div>
+            <div class="step d4s" style="opacity:0"><div class="n">4</div><div><h4>Recibe alertas solas</h4><p>El bot avisa al grupo cuando algo baja del mínimo.</p></div></div>
+          </div>
+          <div id="d4phone" class="phone" style="opacity:0">
+            <div class="screen">
+              <div class="hd">StockFlow Bot · en línea</div>
+              <div class="bub me d4b" style="opacity:0">stock café</div>
+              <div class="bub bot d4b" style="opacity:0">📦 Café molido 1kg
+Existencia: 14 uds · BAJO ⚠️</div>
+              <div class="bub me d4b" style="opacity:0">entrada 50 café</div>
+              <div class="bub bot d4b" style="opacity:0">✅ +50 · quedan 64 uds</div>
+              <div class="bub me d4b" style="opacity:0">salida 12 coca cola</div>
+              <div class="bub bot d4b" style="opacity:0">✅ −12 · quedan 36 uds</div>
+              <div class="bub bot d4b" style="opacity:0">⚠️ Agua 600ml llegó al mínimo. Reabastece.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- S5: QUÉ HACE / QUÉ NO -->
+      <div class="clip scene" data-start="53.0" data-duration="11.0" data-track-index="1">
+        <div id="d5title" class="sec-title" style="opacity:0">Claro desde el inicio: <span class="grad-text">qué hace y qué no</span></div>
+        <div class="cols">
+          <div class="card col yes d5c" style="opacity:0">
+            <h3>Sí hace</h3>
+            <ul>
+              <li>Controla stock, entradas y salidas</li>
+              <li>Alertas de bajo stock automáticas</li>
+              <li>Consulta y registro por WhatsApp</li>
+              <li>Reportes e historial exportables</li>
+              <li>Acceso web multiusuario</li>
+            </ul>
+          </div>
+          <div class="card col no d5c" style="opacity:0">
+            <h3>No hace (por ahora)</h3>
+            <ul>
+              <li>No emite facturas fiscales (SENIAT)</li>
+              <li>No es punto de venta / cobro</li>
+              <li>No lleva contabilidad</li>
+              <li>No gestiona nómina</li>
+              <li>Se enfoca en inventario, y lo hace bien</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- S6: IMPLEMENTACIÓN -->
+      <div class="clip scene" data-start="64.0" data-duration="8.5" data-track-index="1">
+        <div id="d6title" class="sec-title" style="opacity:0">Lo dejamos listo en <span class="grad-text">4 pasos</span></div>
+        <div class="flow">
+          <div class="card fstep d6f" style="opacity:0"><div class="b">1</div><h4>Cargamos productos</h4><p>Importamos tu lista o la creamos contigo.</p></div>
+          <div class="card fstep d6f" style="opacity:0"><div class="b">2</div><h4>Configuramos</h4><p>Mínimos, categorías y usuarios con roles.</p></div>
+          <div class="card fstep d6f" style="opacity:0"><div class="b">3</div><h4>Vinculamos WhatsApp</h4><p>Escaneas un QR una sola vez.</p></div>
+          <div class="card fstep d6f" style="opacity:0"><div class="b">4</div><h4>¡A operar!</h4><p>Tu equipo ya controla todo por chat.</p></div>
+        </div>
+      </div>
+
+      <!-- S7: CIERRE -->
+      <div class="clip scene" data-start="72.5" data-duration="4.5" data-track-index="1">
+        <div id="d7price" class="price-tag grad-text" style="opacity:0">$45<small> / mes</small></div>
+        <div id="d7sub" class="sub" style="opacity:0; margin-top:14px">Todo incluido. Sin instalar nada. Cancelas cuando quieras.</div>
+        <div id="d7cta" class="cta-btn" style="opacity:0; margin-top:40px">Empieza con StockFlow →</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+      const IN = (sel, at, from, dur = 0.6, ease = E) =>
+        tl.fromTo(sel, { opacity: 0, ...from }, { opacity: 1, x: 0, y: 0, scale: 1, duration: dur, ease }, at);
+      const STAG = (sel, at, from, stagger = 0.18, dur = 0.55, ease = E) =>
+        tl.fromTo(sel, { opacity: 0, ...from }, { opacity: 1, x: 0, y: 0, scale: 1, duration: dur, stagger, ease }, at);
+
+      // S1
+      IN("#d1pill", 0.3, { y: 20 });
+      IN("#d1title", 0.9, { y: 40 }, 0.8);
+      IN("#d1price", 2.0, { scale: 0.85 }, 0.7, "back.out(1.6)");
+
+      // S2
+      IN("#d2title", 7.5, { y: 30 });
+      STAG(".d2i", 8.1, { y: 44 }, 0.16, 0.55, "back.out(1.3)");
+
+      // S3
+      IN("#d3title", 19.3, { y: 30 });
+      STAG(".d3r", 19.9, { x: -30 }, 0.22, 0.5);
+
+      // S4
+      IN("#d4title", 33.3, { y: 30 });
+      IN("#d4phone", 34.0, { y: 40 }, 0.7);
+      // steps + bubbles interleaved
+      IN(".d4s:nth-child(1)", 34.6, { x: -30 });
+      STAG(".d4b:nth-child(2), .d4b:nth-child(3)", 35.0, { y: 20 }, 0.7);
+      IN(".d4s:nth-child(2)", 38.4, { x: -30 });
+      STAG(".d4b:nth-child(4), .d4b:nth-child(5)", 38.8, { y: 20 }, 0.7);
+      IN(".d4s:nth-child(3)", 42.2, { x: -30 });
+      STAG(".d4b:nth-child(6), .d4b:nth-child(7)", 42.6, { y: 20 }, 0.7);
+      IN(".d4s:nth-child(4)", 46.2, { x: -30 });
+      IN(".d4b:nth-child(8)", 46.8, { y: 20 });
+
+      // S5
+      IN("#d5title", 53.3, { y: 30 });
+      STAG(".d5c", 53.9, { y: 40 }, 0.22, 0.6);
+
+      // S6
+      IN("#d6title", 64.3, { y: 30 });
+      STAG(".d6f", 64.9, { y: 44 }, 0.18, 0.55, "back.out(1.3)");
+
+      // S7
+      IN("#d7price", 72.8, { scale: 0.85 }, 0.6, "back.out(1.6)");
+      IN("#d7sub", 73.5, {});
+      IN("#d7cta", 74.1, { scale: 0.85 }, 0.6, "back.out(1.7)");
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>StockFlow · Inventario con control por WhatsApp</title>
+    <style>
+      :root {
+        --bg: #f7f8fa;
+        --surface: #ffffff;
+        --surface-2: #f0f2f5;
+        --ink: #0f172a;
+        --ink-soft: #475569;
+        --ink-faint: #94a3b8;
+        --border: #e2e8f0;
+        --brand: #2563eb;
+        --brand-ink: #1d4ed8;
+        --wa: #25d366;
+        --wa-ink: #128c4b;
+        --accent: #7c3aed;
+        --shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
+        --radius: 18px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) {
+          --bg: #0b1120;
+          --surface: #111827;
+          --surface-2: #0f1a2e;
+          --ink: #f1f5f9;
+          --ink-soft: #cbd5e1;
+          --ink-faint: #7c8aa5;
+          --border: #1e293b;
+          --brand: #60a5fa;
+          --brand-ink: #93c5fd;
+          --wa: #25d366;
+          --wa-ink: #4ade80;
+          --accent: #a78bfa;
+          --shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.7);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+      a { color: inherit; }
+
+      /* NAV */
+      header.nav {
+        position: sticky; top: 0; z-index: 50;
+        backdrop-filter: blur(10px);
+        background: color-mix(in srgb, var(--bg) 82%, transparent);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+      .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.02em; font-size: 1.15rem; }
+      .logo .mark {
+        width: 34px; height: 34px; border-radius: 9px;
+        background: linear-gradient(135deg, var(--brand), var(--accent));
+        display: grid; place-items: center; color: #fff; font-size: 18px;
+      }
+      .nav-links { display: flex; gap: 26px; font-size: 0.94rem; color: var(--ink-soft); }
+      .nav-links a { text-decoration: none; }
+      .nav-links a:hover { color: var(--ink); }
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 11px 20px; border-radius: 999px; font-weight: 650; font-size: 0.95rem;
+        text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .12s ease, box-shadow .2s ease;
+      }
+      .btn:hover { transform: translateY(-1px); }
+      .btn-brand { background: var(--brand); color: #fff; box-shadow: var(--shadow); }
+      .btn-wa { background: var(--wa); color: #06301b; }
+      .btn-ghost { background: transparent; border-color: var(--border); color: var(--ink); }
+      @media (max-width: 720px) { .nav-links { display: none; } }
+
+      /* HERO */
+      .hero { position: relative; overflow: hidden; padding: 84px 0 64px; }
+      .hero::before {
+        content: ""; position: absolute; inset: -40% 0 auto 0; height: 620px; z-index: 0;
+        background:
+          radial-gradient(60% 60% at 15% 10%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 70%),
+          radial-gradient(50% 50% at 90% 0%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 70%);
+        pointer-events: none;
+      }
+      .hero .wrap { position: relative; z-index: 1; }
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 650;
+        color: var(--brand-ink); background: color-mix(in srgb, var(--brand) 12%, transparent);
+        padding: 6px 14px; border-radius: 999px; margin-bottom: 22px;
+      }
+      h1 { font-size: clamp(2.1rem, 5vw, 3.5rem); line-height: 1.08; letter-spacing: -0.03em; margin: 0 0 18px; max-width: 15ch; }
+      h1 .grad { background: linear-gradient(120deg, var(--brand), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .lede { font-size: 1.2rem; color: var(--ink-soft); max-width: 56ch; margin: 0 0 30px; }
+      .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+      .hero-note { font-size: 0.85rem; color: var(--ink-faint); margin-top: 16px; }
+
+      /* SECTION */
+      section { padding: 64px 0; }
+      .kicker { color: var(--brand-ink); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; }
+      h2 { font-size: clamp(1.6rem, 3.4vw, 2.4rem); letter-spacing: -0.02em; margin: 10px 0 14px; }
+      .section-lede { color: var(--ink-soft); max-width: 60ch; font-size: 1.05rem; }
+
+      /* FEATURES */
+      .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 40px; }
+      .card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 26px; box-shadow: var(--shadow);
+      }
+      .card .ic { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 16px;
+        background: color-mix(in srgb, var(--brand) 12%, transparent); color: var(--brand); }
+      .card h3 { margin: 0 0 8px; font-size: 1.12rem; letter-spacing: -0.01em; }
+      .card p { margin: 0; color: var(--ink-soft); font-size: 0.96rem; }
+
+      /* WHATSAPP BAND */
+      .band {
+        background: linear-gradient(135deg, color-mix(in srgb, var(--wa) 14%, var(--surface)), var(--surface));
+        border: 1px solid var(--border); border-radius: 28px; padding: 44px; margin-top: 8px;
+        display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center;
+      }
+      @media (max-width: 820px) { .band { grid-template-columns: 1fr; padding: 30px; } }
+      .band .tag { color: var(--wa-ink); font-weight: 800; display: inline-flex; align-items: center; gap: 8px; }
+      .chatlist { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 12px; }
+      .chatlist li { display: flex; gap: 12px; align-items: flex-start; color: var(--ink-soft); }
+      .chatlist .dot { flex: none; width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--wa) 22%, transparent); color: var(--wa-ink); display: grid; place-items: center; font-size: 12px; font-weight: 900; margin-top: 3px; }
+      /* Phone mock */
+      .phone { justify-self: center; width: 300px; max-width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 30px; padding: 14px; box-shadow: var(--shadow); }
+      .phone .screen { background: #0b141a; border-radius: 20px; padding: 14px; min-height: 380px; display: flex; flex-direction: column; gap: 10px; }
+      .phone .top { color: #8fb; font-size: 0.72rem; text-align: center; opacity: .8; margin-bottom: 4px; }
+      .bubble { max-width: 82%; padding: 9px 12px; border-radius: 14px; font-size: 0.82rem; line-height: 1.4; white-space: pre-line; }
+      .bubble.me { align-self: flex-end; background: #075e54; color: #eafff5; border-bottom-right-radius: 4px; }
+      .bubble.bot { align-self: flex-start; background: #1f2c34; color: #e9edef; border-bottom-left-radius: 4px; }
+
+      /* PRICING */
+      .pricing { background: var(--surface-2); }
+      .tiers { display: grid; gap: 24px; grid-template-columns: repeat(3, 1fr); margin-top: 44px; align-items: stretch; }
+      @media (max-width: 900px) { .tiers { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; } }
+      .tier {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 30px; display: flex; flex-direction: column; box-shadow: var(--shadow); position: relative;
+      }
+      .tier.featured { border-color: var(--brand); box-shadow: 0 24px 50px -20px color-mix(in srgb, var(--brand) 55%, transparent); transform: translateY(-6px); }
+      @media (max-width: 900px) { .tier.featured { transform: none; } }
+      .tier .badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--brand); color: #fff; font-size: 0.72rem; font-weight: 800; padding: 5px 14px; border-radius: 999px; letter-spacing: 0.04em; }
+      .tier h3 { margin: 0 0 4px; font-size: 1.25rem; }
+      .tier .who { color: var(--ink-faint); font-size: 0.88rem; min-height: 40px; }
+      .price { display: flex; align-items: baseline; gap: 6px; margin: 16px 0 4px; }
+      .price .amount { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; }
+      .price .per { color: var(--ink-faint); font-size: 0.9rem; }
+      .price .cur { color: var(--ink-soft); font-weight: 700; font-size: 1.1rem; align-self: flex-start; margin-top: 6px; }
+      .feat { list-style: none; padding: 0; margin: 22px 0 26px; display: grid; gap: 11px; }
+      .feat li { display: flex; gap: 10px; align-items: flex-start; font-size: 0.94rem; color: var(--ink-soft); }
+      .feat .ck { flex: none; color: var(--wa-ink); margin-top: 2px; }
+      .feat li.off { color: var(--ink-faint); opacity: .65; }
+      .feat li.off .ck { color: var(--ink-faint); }
+      .tier .btn { justify-content: center; margin-top: auto; }
+      .note { text-align: center; color: var(--ink-faint); font-size: 0.85rem; margin-top: 26px; }
+
+      /* COMPARISON */
+      .cmp { width: 100%; border-collapse: collapse; margin-top: 40px; font-size: 0.95rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+      .cmp th, .cmp td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); }
+      .cmp thead th { background: var(--surface-2); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); }
+      .cmp td.c { text-align: center; }
+      .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      .cmp .yes { color: var(--wa-ink); font-weight: 800; }
+      .cmp .no { color: var(--ink-faint); }
+      .cmp-wrap { overflow-x: auto; }
+
+      /* CTA / FOOTER */
+      .cta { text-align: center; padding: 80px 0; }
+      .cta h2 { max-width: 20ch; margin-inline: auto; }
+      footer { border-top: 1px solid var(--border); padding: 30px 0; color: var(--ink-faint); font-size: 0.88rem; }
+      .foot-inner { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    </style>
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <div class="logo"><span class="mark">▦</span> StockFlow</div>
+        <nav class="nav-links">
+          <a href="#producto">Producto</a>
+          <a href="#whatsapp">WhatsApp</a>
+          <a href="#planes">Planes</a>
+          <a href="#comparacion">Comparación</a>
+        </nav>
+        <a class="btn btn-brand" href="#planes">Ver planes</a>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="wrap">
+        <span class="eyebrow">📦 Sistema de gestión de inventario</span>
+        <h1>Controla tu inventario <span class="grad">y opéralo desde WhatsApp</span></h1>
+        <p class="lede">
+          StockFlow lleva el control de tu stock, entradas, salidas y alertas en un panel simple,
+          y te deja consultar y registrar movimientos <strong>escribiendo en WhatsApp</strong>, sin abrir la app.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-brand" href="#planes">Ver planes y precios</a>
+          <a class="btn btn-wa" href="#whatsapp">Ver control por WhatsApp →</a>
+        </div>
+        <p class="hero-note">Disponible local (en tu equipo) o en la nube con alojamiento incluido.</p>
+      </div>
+    </div>
+
+    <!-- PRODUCTO / FEATURES -->
+    <section id="producto">
+      <div class="wrap">
+        <span class="kicker">El producto</span>
+        <h2>Todo tu inventario, bajo control</h2>
+        <p class="section-lede">Diseñado para negocios que necesitan saber, en tiempo real, qué tienen, qué falta y qué se mueve.</p>
+        <div class="grid">
+          <div class="card">
+            <div class="ic">📊</div>
+            <h3>Control de stock en tiempo real</h3>
+            <p>Existencias siempre actualizadas por producto, categoría y ubicación.</p>
+          </div>
+          <div class="card">
+            <div class="ic">🔔</div>
+            <h3>Alertas de bajo stock</h3>
+            <p>Recibe avisos automáticos cuando un producto llega al mínimo definido.</p>
+          </div>
+          <div class="card">
+            <div class="ic">↕️</div>
+            <h3>Entradas y salidas</h3>
+            <p>Registra movimientos con historial completo y trazabilidad de quién y cuándo.</p>
+          </div>
+          <div class="card">
+            <div class="ic">🧾</div>
+            <h3>Reportes y exportación</h3>
+            <p>Valor de inventario, rotación y movimientos exportables a Excel/PDF.</p>
+          </div>
+          <div class="card">
+            <div class="ic">👥</div>
+            <h3>Multiusuario con roles</h3>
+            <p>Permisos por usuario: administrador, almacén o solo consulta.</p>
+          </div>
+          <div class="card">
+            <div class="ic">🔎</div>
+            <h3>Búsqueda instantánea</h3>
+            <p>Encuentra cualquier producto por nombre, código o categoría al instante.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHATSAPP -->
+    <section id="whatsapp">
+      <div class="wrap">
+        <div class="band">
+          <div>
+            <span class="tag">🟢 Integración con WhatsApp</span>
+            <h2 style="margin-top:10px">Opera tu inventario escribiendo un mensaje</h2>
+            <p class="section-lede">
+              Tu equipo no necesita abrir la app ni aprender un sistema nuevo. Consulta stock y registra
+              movimientos directamente en el chat que ya usan todos los días.
+            </p>
+            <ul class="chatlist">
+              <li><span class="dot">✓</span> <span><strong>Consulta de stock:</strong> «stock coca cola» y te responde la existencia.</span></li>
+              <li><span class="dot">✓</span> <span><strong>Registro de movimientos:</strong> «salida 5 coca cola» descuenta al instante.</span></li>
+              <li><span class="dot">✓</span> <span><strong>Alertas automáticas:</strong> el bot avisa al grupo cuando algo baja del mínimo.</span></li>
+              <li><span class="dot">✓</span> <span><strong>Privado y seguro:</strong> solo responde en los grupos y a las personas autorizadas.</span></li>
+            </ul>
+          </div>
+          <div class="phone" aria-hidden="true">
+            <div class="screen">
+              <div class="top">StockFlow Bot · en línea</div>
+              <div class="bubble me">stock coca cola</div>
+              <div class="bubble bot">📦 Coca Cola 350ml
+Existencia: 48 unidades
+Mínimo: 20 · Estado: OK ✅</div>
+              <div class="bubble me">salida 12 coca cola</div>
+              <div class="bubble bot">✅ Registrado: −12 Coca Cola 350ml
+Nueva existencia: 36 unidades</div>
+              <div class="bubble bot">⚠️ Alerta: Agua 600ml llegó a 8 uds (mínimo 15). Conviene reabastecer.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="planes" class="pricing">
+      <div class="wrap">
+        <span class="kicker">Planes</span>
+        <h2>Elige cómo quieres tu StockFlow</h2>
+        <p class="section-lede">Desde una instalación local propia hasta la suite completa con control por WhatsApp.</p>
+
+        <div class="tiers">
+          <!-- LOCAL -->
+          <div class="tier">
+            <h3>Local</h3>
+            <p class="who">Instalado en tu propio equipo o servidor. Pago único, sin mensualidad.</p>
+            <div class="price"><span class="cur">$</span><span class="amount">349</span><span class="per">pago único</span></div>
+            <ul class="feat">
+              <li><span class="ck">✓</span> Sistema de inventario completo</li>
+              <li><span class="ck">✓</span> Control de stock, entradas y salidas</li>
+              <li><span class="ck">✓</span> Reportes y exportación</li>
+              <li><span class="ck">✓</span> Multiusuario con roles</li>
+              <li><span class="ck">✓</span> Instalación y capacitación inicial</li>
+              <li class="off"><span class="ck">×</span> Alojamiento en la nube</li>
+              <li class="off"><span class="ck">×</span> Control por WhatsApp</li>
+            </ul>
+            <a class="btn btn-ghost" href="#contacto">Quiero el plan Local</a>
+          </div>
+
+          <!-- ONLINE -->
+          <div class="tier">
+            <h3>Online</h3>
+            <p class="who">En la nube, con alojamiento y respaldos incluidos. Accede desde cualquier lugar.</p>
+            <div class="price"><span class="cur">$</span><span class="amount">25</span><span class="per">/ mes</span></div>
+            <ul class="feat">
+              <li><span class="ck">✓</span> Todo lo del plan Local</li>
+              <li><span class="ck">✓</span> Alojamiento + dominio incluido</li>
+              <li><span class="ck">✓</span> Respaldos automáticos diarios</li>
+              <li><span class="ck">✓</span> Acceso web desde cualquier dispositivo</li>
+              <li><span class="ck">✓</span> Actualizaciones continuas</li>
+              <li class="off"><span class="ck">×</span> Control por WhatsApp</li>
+            </ul>
+            <a class="btn btn-ghost" href="#contacto">Quiero el plan Online</a>
+          </div>
+
+          <!-- ONLINE + WHATSAPP -->
+          <div class="tier featured">
+            <span class="badge">RECOMENDADO</span>
+            <h3>Online + WhatsApp</h3>
+            <p class="who">La suite completa: inventario en la nube y control total desde WhatsApp.</p>
+            <div class="price"><span class="cur">$</span><span class="amount">45</span><span class="per">/ mes</span></div>
+            <ul class="feat">
+              <li><span class="ck">✓</span> Todo lo del plan Online</li>
+              <li><span class="ck">✓</span> <strong>Bot de WhatsApp integrado</strong></li>
+              <li><span class="ck">✓</span> Consulta y registro por chat</li>
+              <li><span class="ck">✓</span> Alertas automáticas al grupo</li>
+              <li><span class="ck">✓</span> Allowlist de grupos y usuarios</li>
+              <li><span class="ck">✓</span> Soporte prioritario</li>
+            </ul>
+            <a class="btn btn-brand" href="#contacto">Quiero Online + WhatsApp</a>
+          </div>
+        </div>
+        <p class="note">Precios de referencia en USD, personalizables según el tamaño del negocio. Implementación y migración de datos cotizables aparte.</p>
+      </div>
+    </section>
+
+    <!-- COMPARISON -->
+    <section id="comparacion">
+      <div class="wrap">
+        <span class="kicker">Comparación</span>
+        <h2>¿Cuál plan me conviene?</h2>
+        <div class="cmp-wrap">
+          <table class="cmp">
+            <thead>
+              <tr><th>Característica</th><th class="c">Local</th><th class="c">Online</th><th class="c">Online + WhatsApp</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Gestión de inventario completa</td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td></tr>
+              <tr><td>Reportes y exportación</td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td></tr>
+              <tr><td>Acceso desde cualquier lugar</td><td class="c no"><span aria-hidden="true">×</span><span class="sr-only">No incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td></tr>
+              <tr><td>Alojamiento y respaldos incluidos</td><td class="c no"><span aria-hidden="true">×</span><span class="sr-only">No incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td></tr>
+              <tr><td>Actualizaciones automáticas</td><td class="c no"><span aria-hidden="true">×</span><span class="sr-only">No incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td></tr>
+              <tr><td>Control por WhatsApp</td><td class="c no"><span aria-hidden="true">×</span><span class="sr-only">No incluye</span></td><td class="c no"><span aria-hidden="true">×</span><span class="sr-only">No incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td></tr>
+              <tr><td>Alertas automáticas al grupo</td><td class="c no"><span aria-hidden="true">×</span><span class="sr-only">No incluye</span></td><td class="c no"><span aria-hidden="true">×</span><span class="sr-only">No incluye</span></td><td class="c yes"><span aria-hidden="true">✓</span><span class="sr-only">Incluye</span></td></tr>
+              <tr><td>Modelo de pago</td><td class="c">Único</td><td class="c">Mensual</td><td class="c">Mensual</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section id="contacto" class="cta">
+      <div class="wrap">
+        <span class="kicker">¿Listo?</span>
+        <h2>Lleva el control de tu inventario a WhatsApp hoy</h2>
+        <p class="section-lede" style="margin-inline:auto">Agenda una demo y te mostramos StockFlow funcionando con tus propios productos.</p>
+        <div style="margin-top:26px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap">
+          <a class="btn btn-brand" href="https://wa.me/584225594556?text=Hola%2C%20quiero%20agendar%20una%20demo%20de%20StockFlow" target="_blank" rel="noopener">Agendar demo</a>
+          <a class="btn btn-wa" href="https://wa.me/584225594556?text=Hola%2C%20tengo%20una%20pregunta%20sobre%20StockFlow" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap foot-inner">
+        <span>© <span id="y"></span> StockFlow · Gestión de inventario con control por WhatsApp.</span>
+        <span>Local · Nube · WhatsApp</span>
+      </div>
+    </footer>
+    <script>
+      document.getElementById('y').textContent = new Date().getFullYear();
+    </script>
+  </body>
+</html>

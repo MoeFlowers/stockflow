@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #0b1120; color: #f1f5f9;
+        font-family: "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+      }
+      .clip { position: absolute; inset: 0; }
+      .scene { position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; padding: 90px; }
+      .bg-grad {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(60% 70% at 18% 12%, rgba(37,99,235,0.30), transparent 60%),
+          radial-gradient(55% 65% at 85% 8%, rgba(124,58,237,0.28), transparent 60%),
+          radial-gradient(70% 80% at 50% 120%, rgba(37,99,235,0.18), transparent 60%),
+          #0b1120;
+      }
+      .kick { font-size: 30px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+        color: #93c5fd; }
+      .brand-mark { width: 118px; height: 118px; border-radius: 28px;
+        background: linear-gradient(135deg, #2563eb, #7c3aed); display: grid; place-items: center;
+        font-size: 64px; color: #fff; box-shadow: 0 30px 70px -20px rgba(37,99,235,0.7); }
+      .grad-text { background: linear-gradient(120deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .wa-chip { display: inline-flex; align-items: center; gap: 16px; background: rgba(37,211,102,0.14);
+        color: #4ade80; font-weight: 700; font-size: 34px; padding: 16px 34px; border-radius: 999px;
+        border: 1px solid rgba(37,211,102,0.35); }
+      .card { background: #111827; border: 1px solid #1e293b; border-radius: 26px;
+        box-shadow: 0 40px 90px -40px rgba(0,0,0,0.8); }
+
+      /* Scene 2 dashboard */
+      .dash { width: 1180px; padding: 44px 50px; }
+      .dash-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+      .dash-title { font-size: 38px; font-weight: 800; }
+      .pill-live { font-size: 24px; color: #4ade80; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+      .pill-live .d { width: 16px; height: 16px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 6px rgba(74,222,128,0.2); }
+      .row { display: grid; grid-template-columns: 1fr 220px 160px; align-items: center;
+        padding: 26px 28px; border-radius: 16px; background: #0f1a2e; margin-bottom: 16px; font-size: 34px; }
+      .row .nm { font-weight: 650; }
+      .row .qt { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .badge { justify-self: end; font-size: 24px; font-weight: 800; padding: 8px 18px; border-radius: 999px; }
+      .ok { background: rgba(74,222,128,0.16); color: #4ade80; }
+      .low { background: rgba(251,146,60,0.18); color: #fb923c; }
+
+      /* Scene 3 feature tiles */
+      .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; width: 1500px; }
+      .tile { padding: 54px 44px; text-align: center; }
+      .tile .ic { font-size: 78px; margin-bottom: 24px; }
+      .tile h3 { font-size: 40px; margin-bottom: 14px; }
+      .tile p { font-size: 27px; color: #94a3b8; line-height: 1.5; }
+
+      /* Scene 4 phone */
+      .phone { width: 560px; background: #0f1a2e; border: 1px solid #1e293b; border-radius: 46px;
+        padding: 26px; box-shadow: 0 50px 100px -30px rgba(0,0,0,0.85); }
+      .screen { background: #0b141a; border-radius: 32px; padding: 26px; display: flex; flex-direction: column; gap: 18px; min-height: 720px; }
+      .screen .hd { text-align: center; color: #8fddb4; font-size: 24px; opacity: 0.85; margin-bottom: 6px; }
+      .bub { max-width: 82%; padding: 20px 24px; border-radius: 22px; font-size: 30px; line-height: 1.35; white-space: pre-line; }
+      .me { align-self: flex-end; background: #075e54; color: #eafff5; border-bottom-right-radius: 6px; }
+      .bot { align-self: flex-start; background: #1f2c34; color: #e9edef; border-bottom-left-radius: 6px; }
+
+      /* Scene 5 plans */
+      .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px; width: 1420px; margin: 46px 0; }
+      .plan { padding: 44px 34px; text-align: center; position: relative; }
+      .plan.hot { border-color: #2563eb; box-shadow: 0 40px 90px -34px rgba(37,99,235,0.6); }
+      .plan .pn { font-size: 34px; font-weight: 800; margin-bottom: 10px; }
+      .plan .pp { font-size: 52px; font-weight: 800; }
+      .plan .pp small { font-size: 26px; color: #94a3b8; font-weight: 600; }
+      .plan .tagx { position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+        background: #2563eb; color: #fff; font-size: 22px; font-weight: 800; padding: 8px 22px; border-radius: 999px; }
+      .cta-btn { display: inline-flex; align-items: center; gap: 16px; background: linear-gradient(135deg,#2563eb,#7c3aed);
+        color: #fff; font-size: 38px; font-weight: 800; padding: 24px 54px; border-radius: 999px;
+        box-shadow: 0 30px 70px -24px rgba(37,99,235,0.75); }
+
+      h1.title { font-size: 128px; line-height: 1.02; letter-spacing: -0.03em; text-align: center; font-weight: 850; }
+      .sub { font-size: 46px; color: #cbd5e1; text-align: center; }
+      .sec-title { font-size: 66px; font-weight: 850; letter-spacing: -0.02em; text-align: center; margin-bottom: 44px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="31" data-width="1920" data-height="1080">
+      <div class="bg-grad"></div>
+
+      <!-- SCENE 1: HOOK -->
+      <div class="clip scene" data-start="0" data-duration="6.2" data-track-index="1">
+        <div id="s1mark" class="brand-mark" style="opacity:0">▦</div>
+        <div id="s1logo" style="opacity:0; font-size:56px; font-weight:800; letter-spacing:-0.02em; margin-top:26px">StockFlow</div>
+        <h1 id="s1title" class="title" style="opacity:0; margin-top:34px">Tu inventario,<br /><span class="grad-text">bajo control</span></h1>
+        <div id="s1sub" class="wa-chip" style="opacity:0; margin-top:44px">🟢 y operado desde WhatsApp</div>
+      </div>
+
+      <!-- SCENE 2: STOCK EN TIEMPO REAL -->
+      <div class="clip scene" data-start="6.2" data-duration="6.0" data-track-index="1">
+        <div id="s2title" class="sec-title" style="opacity:0">Control de stock <span class="grad-text">en tiempo real</span></div>
+        <div id="s2card" class="card dash" style="opacity:0">
+          <div class="dash-head">
+            <div class="dash-title">📦 Inventario</div>
+            <div class="pill-live"><span class="d"></span> EN VIVO</div>
+          </div>
+          <div class="row s2row" style="opacity:0"><span class="nm">Coca Cola 350ml</span><span class="qt"><span id="s2num">0</span> uds</span><span class="badge ok">OK</span></div>
+          <div class="row s2row" style="opacity:0"><span class="nm">Agua 600ml</span><span class="qt">128 uds</span><span class="badge ok">OK</span></div>
+          <div class="row s2row" style="opacity:0"><span class="nm">Café molido 1kg</span><span class="qt">14 uds</span><span class="badge low">BAJO</span></div>
+          <div class="row s2row" style="opacity:0; margin-bottom:0"><span class="nm">Azúcar 1kg</span><span class="qt">92 uds</span><span class="badge ok">OK</span></div>
+        </div>
+      </div>
+
+      <!-- SCENE 3: ALERTAS / MOVIMIENTOS / REPORTES -->
+      <div class="clip scene" data-start="12.2" data-duration="6.0" data-track-index="1">
+        <div id="s3title" class="sec-title" style="opacity:0">Todo lo que tu negocio necesita</div>
+        <div class="tiles">
+          <div class="card tile s3tile" style="opacity:0"><div class="ic">🔔</div><h3>Alertas de bajo stock</h3><p>Avisos automáticos cuando un producto llega al mínimo.</p></div>
+          <div class="card tile s3tile" style="opacity:0"><div class="ic">↕️</div><h3>Entradas y salidas</h3><p>Registro con historial completo y trazabilidad total.</p></div>
+          <div class="card tile s3tile" style="opacity:0"><div class="ic">🧾</div><h3>Reportes y exportación</h3><p>Valor de inventario y rotación en Excel y PDF.</p></div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: WHATSAPP -->
+      <div class="clip scene" data-start="18.2" data-duration="6.8" data-track-index="1" style="flex-direction:row; gap:90px">
+        <div style="max-width:720px">
+          <div id="s4title" class="sec-title" style="opacity:0; text-align:left; margin-bottom:24px">Contrólalo <span class="grad-text">desde WhatsApp</span></div>
+          <div id="s4p" class="sub" style="opacity:0; text-align:left; font-size:40px; color:#94a3b8">Consulta stock y registra movimientos escribiendo un mensaje. Sin abrir la app.</div>
+        </div>
+        <div id="s4phone" class="phone" style="opacity:0">
+          <div class="screen">
+            <div class="hd">StockFlow Bot · en línea</div>
+            <div class="bub me s4b" style="opacity:0">stock coca cola</div>
+            <div class="bub bot s4b" style="opacity:0">📦 Coca Cola 350ml
+Existencia: 48 uds · Estado: OK ✅</div>
+            <div class="bub me s4b" style="opacity:0">salida 12 coca cola</div>
+            <div class="bub bot s4b" style="opacity:0">✅ Registrado −12
+Nueva existencia: 36 uds</div>
+            <div class="bub bot s4b" style="opacity:0">⚠️ Agua 600ml llegó al mínimo. Reabastece.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 5: PLANES / CTA -->
+      <div class="clip scene" data-start="25.0" data-duration="6.0" data-track-index="1">
+        <div id="s5title" class="sec-title" style="opacity:0">Elige tu <span class="grad-text">StockFlow</span></div>
+        <div class="plans">
+          <div class="card plan s5plan" style="opacity:0"><div class="pn">Local</div><div class="pp">$349<br /><small>pago único</small></div></div>
+          <div class="card plan s5plan" style="opacity:0"><div class="pn">Online</div><div class="pp">$25<small> / mes</small></div></div>
+          <div class="card plan hot s5plan" style="opacity:0"><div class="tagx">RECOMENDADO</div><div class="pn">Online + WhatsApp</div><div class="pp">$45<small> / mes</small></div></div>
+        </div>
+        <div id="s5cta" class="cta-btn" style="opacity:0">Agenda tu demo →</div>
+        <div id="s5logo" style="opacity:0; margin-top:38px; font-size:34px; font-weight:800; color:#93c5fd">▦ StockFlow</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+      const IN = (sel, at, from, dur = 0.6, ease = E) =>
+        tl.fromTo(sel, { opacity: 0, ...from }, { opacity: 1, x: 0, y: 0, scale: 1, duration: dur, ease, ...(from.stagger !== undefined ? { stagger: from.stagger } : {}) }, at);
+
+      // SCENE 1
+      IN("#s1mark", 0.2, { scale: 0.6 }, 0.7, "back.out(1.7)");
+      IN("#s1logo", 0.7, { y: 20 });
+      IN("#s1title", 1.1, { y: 40 }, 0.8);
+      IN("#s1sub", 2.0, { y: 30 }, 0.7, "back.out(1.6)");
+
+      // SCENE 2
+      IN("#s2title", 6.4, { y: 30 });
+      IN("#s2card", 6.8, { y: 40 }, 0.7);
+      tl.fromTo(".s2row", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.18, ease: E }, 7.2);
+      tl.fromTo({ v: 0 }, { v: 0 }, { v: 48, duration: 1.1, ease: "power1.out",
+        onUpdate: function () { document.getElementById("s2num").textContent = Math.round(this.targets()[0].v); } }, 7.4);
+
+      // SCENE 3
+      IN("#s3title", 12.4, { y: 30 });
+      tl.fromTo(".s3tile", { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.2, ease: "back.out(1.4)" }, 12.9);
+
+      // SCENE 4
+      IN("#s4title", 18.4, { x: -30 });
+      IN("#s4p", 18.9, {});
+      IN("#s4phone", 19.1, { y: 40 }, 0.7);
+      tl.fromTo(".s4b", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.45, stagger: 0.62, ease: "back.out(1.4)" }, 19.6);
+
+      // SCENE 5
+      IN("#s5title", 25.2, { y: 30 });
+      tl.fromTo(".s5plan", { opacity: 0, y: 44 }, { opacity: 1, y: 0, duration: 0.55, stagger: 0.18, ease: "back.out(1.4)" }, 25.7);
+      IN("#s5cta", 26.7, { scale: 0.8 }, 0.6, "back.out(1.7)");
+      IN("#s5logo", 27.4, {}, 0.6);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
